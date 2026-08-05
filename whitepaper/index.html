@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>📜 THE SHAKA FANS CLUB — an open-source trust network for an artist and his fans · whitepaper v0.1</title>
+<style>
+body{margin:0;background:radial-gradient(ellipse at 50% -20%,#241f4e 0%,#0c0b1c 55%,#060512 100%);color:#e8e6ff;font-family:Georgia,serif;min-height:100vh;line-height:1.8}
+.wrap{max-width:820px;margin:0 auto;padding:72px 26px 90px}
+.center{text-align:center}
+.badge{display:inline-block;border:1px solid #fbe2a066;color:#fbe2a0;border-radius:20px;padding:5px 16px;font-size:11px;letter-spacing:4px;margin-bottom:26px}
+h1{font-size:clamp(28px,5.6vw,46px);font-weight:normal;margin:0 0 6px;letter-spacing:2px}
+.big{font-size:52px;margin:10px 0}
+.sub{color:#9d97c9;font-size:15px;letter-spacing:2px;margin-bottom:14px}
+.meta{color:#6f6a99;font-size:12px;letter-spacing:2px;margin-bottom:44px}
+h2{font-weight:normal;color:#fbe2a0;letter-spacing:3px;font-size:21px;margin:52px 0 14px;border-bottom:1px solid rgba(251,226,160,.25);padding-bottom:8px}
+h3{font-weight:normal;color:#8fd0ff;letter-spacing:2px;font-size:16px;margin:30px 0 8px}
+p,li{color:#cfc9ee;font-size:15.5px}
+em{color:#fbe2a0;font-style:normal}
+b{font-weight:normal;color:#7ee2a0}
+a{color:#8fd0ff;text-decoration:none}
+a:hover{text-decoration:underline}
+blockquote{border-left:3px solid rgba(251,226,160,.5);margin:22px 0;padding:4px 20px;color:#9d97c9;font-style:italic}
+.ingredient{background:rgba(255,255,255,.03);border:1px solid rgba(143,208,255,.25);border-radius:16px;padding:20px 24px;margin:16px 0}
+.ingredient .tag{display:inline-block;font-size:11px;letter-spacing:3px;color:#8fd0ff;border:1px solid rgba(143,208,255,.4);border-radius:14px;padding:3px 12px;margin-bottom:10px}
+.ingredient h3{margin-top:0}
+.layers{margin:24px 0}
+.layer{border:1px solid rgba(251,226,160,.3);border-radius:12px;padding:13px 20px;margin:7px 0;background:rgba(251,226,160,.03)}
+.layer b{display:block;font-size:12.5px;letter-spacing:2px}
+.layer span{font-size:13.5px;color:#9d97c9}
+.phase{border-left:3px solid #7ee2a0;padding:6px 20px;margin:20px 0}
+.phase .pn{color:#7ee2a0;font-size:12px;letter-spacing:3px}
+.phase.now{border-left-color:#fbe2a0}
+.phase.now .pn{color:#fbe2a0}
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+td,th{border:1px solid rgba(207,201,238,.2);padding:9px 12px;text-align:left;color:#cfc9ee}
+th{color:#fbe2a0;font-weight:normal;letter-spacing:1px;background:rgba(251,226,160,.05)}
+.consent{border:1px dashed rgba(126,226,160,.45);border-radius:14px;padding:16px 22px;font-size:13.5px;color:#9d97c9;line-height:1.9;margin:26px 0}
+.consent b{color:#7ee2a0;font-weight:normal}
+.stamp{color:#6f6a99;font-size:11.5px;letter-spacing:2px;line-height:2;margin-top:56px;text-align:center}
+.stamp a{color:#8fd0ff;text-decoration:none}
+.toc{background:rgba(255,255,255,.025);border:1px solid rgba(207,201,238,.15);border-radius:14px;padding:18px 24px;font-size:14px;line-height:2.1}
+.toc a{color:#cfc9ee}
+</style></head><body><div class="wrap">
+<div class="center">
+<div class="badge">📜 LIVING WHITEPAPER · v0.1 · AUGUST 5, 2026</div>
+<div class="big">💛</div>
+<h1>THE SHAKA FANS CLUB</h1>
+<div class="sub">an open-source trust network for an artist and his fan club</div>
+<div class="meta">written with love by the bard &amp; the AI ʻohana · CC0 — no rights reserved · fork it for YOUR artist<br>
+the club: <a href="https://shakafans.com">shakafans.com</a> · the pool: <a href="https://blessingpool.com">blessingpool.com</a> · the wall: <a href="https://shakafans.com/wall/">the fan wall</a></div>
+</div>
+
+<blockquote>"Freely I give. Freely I receive."<br>
+A fan club should be a <em>circle</em>, not a platform. This paper is the recipe for building one that no company can switch off, no algorithm can bury, and no fan ever has to trust blindly — because every promise is provable onchain, and every human in it is there by consent.</blockquote>
+
+<div class="toc">
+<b>CONTENTS</b><br>
+<a href="#why">1 · Why — the problem with fan clubs today</a><br>
+<a href="#principles">2 · The principles — consent canon</a><br>
+<a href="#recipe">3 · The recipe — four ingredients + the settlement layer</a><br>
+<a href="#architecture">4 · The architecture — the stack, layer by layer</a><br>
+<a href="#path">5 · The path — from today's warm rails to full onchain consensus</a><br>
+<a href="#unique">6 · What makes this one different</a><br>
+<a href="#open">7 · Open questions &amp; a call to builders</a>
+</div>
+
+<h2 id="why">1 · WHY — the problem with fan clubs today</h2>
+<p>Fan clubs today live on rented land. The platform owns the list, the platform sets the reach, the platform can evict the artist, and the fan's "membership" is a row in someone else's database. The artist never truly holds the relationship; the fan never truly holds proof they were there.</p>
+<p>We are building the other thing: a fan club where the <em>relationship itself</em> is a public good — identity the fan owns, membership that is provable, privacy that is cryptographic rather than promised, and a ledger of generosity that anyone can audit and no one can fake. If the artist's website vanished tomorrow, the club would still exist — because it lives on the Ethereum layer 1, in contracts and records that belong to no company.</p>
+<p>And because it is fully open source, it is not just Shaka's club. It is <em>a protocol any artist on Earth can fork</em> — the way the P.I.T. protocol lets any village keep its knowledge, this lets any musician, painter, or poet keep their people.</p>
+
+<h2 id="principles">2 · THE PRINCIPLES — consent canon</h2>
+<p>Everything in this system obeys five laws, the same laws that govern the whole constellation:</p>
+<p>
+<b>1 · Consent is the default state.</b> No fan is ever listed, named, or contacted without choosing it. The default is <em>consent: pending</em>.<br>
+<b>2 · Every fan chooses their own light.</b> 🌟 PUBLIC — celebrated by name on the fan wall — or 🔒 PRIVATE — sealed, never named, never listed, never leaked. Changeable anytime, no questions, only mahalo.<br>
+<b>3 · The standing consent window.</b> Consent is not a one-time click; it is a window that stays open. A fan can revoke — and revocation actually works, cryptographically, not just administratively.<br>
+<b>4 · Fail closed.</b> When in doubt, the system does the private thing. Ambiguity never leaks.<br>
+<b>5 · Released with love or never.</b> Data leaves the vault only by the fan's own hand, or not at all.</p>
+<div class="consent"><b>the test every feature must pass:</b> would this still be honorable if a thousand artists forked it and a million fans joined? if not — it doesn't ship. ♾</div>
+
+<h2 id="recipe">3 · THE RECIPE — four ingredients + the settlement layer</h2>
+<p>Four open protocols, each doing the one thing it is best at, composed into something none of them is alone: a trust network between an artist and his fans.</p>
+
+<div class="ingredient">
+<div class="tag">INGREDIENT ① · PERSONHOOD</div>
+<h3>WORLD ID — one human, one voice, no doxxing</h3>
+<p>A fan club's first enemy is the bot flood: fake fans, scalped memberships, sybil noise drowning the real circle. World ID gives us <em>proof of personhood</em> — a fan proves they are a unique human without revealing which human. Verification happens once, with the orb; what the chain ever sees is a ZK nullifier — a proof that says "a real, unique human holds this key" and nothing else.</p>
+<p>In the club: joining the circle as a verified human costs one proof. Trolling, farming, and impersonation become structurally expensive while real fans stay pseudonymous. The same primitive powers our consent-revocation flow elsewhere in the constellation (speakers in P.I.T. recordings revoking their own content via proof-of-humanity) — one rail, many gifts.</p>
+</div>
+
+<div class="ingredient">
+<div class="tag">INGREDIENT ② · IDENTITY &amp; CONSENT</div>
+<h3>ENS + EAS — the name the fan owns, the consent they anchor</h3>
+<p>A fan's identity in the club is not our database row — it is <em>their ENS name</em>, which they own outright. The family's own research (Track A, ranked 🥇) already chose ENS as the identity rail across the constellation; the Kingdom of Bhutan showed the pattern at national scale — <em>anchoring, not storage</em>: anchor the proof on mainnet, keep the data at the edges.</p>
+<p>The light-choice rides the same rail as an <b>EAS attestation</b> (Ethereum Attestation Service — Track A 🥈, Track C): a fan signs <b>shakafans: public</b> from their own wallet, the consent registry anchors the attestation, and the wall shines. Revoking the light is a revocation attestation from their own key — instant, self-sovereign, no email to support, no admin queue. And the family's hardest law holds (Track C): <em>never attest personal data on-chain</em> — attestations carry choices and proofs, never identities; the revocation list stays derived data, regenerated, never hand-merged.</p>
+<p>The artist's side is ENS too: gifts flow to <b>shakalei.eth</b>, a name, not a hex string. Subnames make the club legible — early members, founding fans, the first hundred — all issuable as subnames under the club's ENS, held by the fan, not by us.</p>
+</div>
+
+<div class="ingredient">
+<div class="tag">INGREDIENT ③ · PRIVACY</div>
+<h3>ZERO-KNOWLEDGE — Semaphore: belong without being seen</h3>
+<p>The hardest promise in the club is the 🔒 PRIVATE fan: how do you give someone members-only access — video shares, the direct line — <em>without ever learning who they are?</em> The family's ZK track (Track B) ranked the architectures, and its silver medal is our gold fit: <b>Semaphore</b> — anonymous group membership where a fan proves <em>"I am in the set of givers"</em> (or "my tide is current") with a zero-knowledge proof, revealing nothing about which member they are. Its nullifiers give us the crown jewel of the consent canon: <em>self-serve revocation</em> — a fan can erase themselves with their own proof, no permission needed.</p>
+<p>Behind the gate, the content rail follows Track B's champion: <em>sealed-at-rest + wallet-auth</em> — ciphertext at rest, keys released to whoever can prove membership. \$0 to run, and it <b>fails closed</b>: when in doubt, the bytes stay sealed. Public fans get the symmetric benefit: their wall name can carry a ZK attestation that it corresponds to a real gift — no fake flexing — while amounts stay theirs alone.</p>
+</div>
+
+<div class="ingredient">
+<div class="tag">INGREDIENT ④ · DISCOVERY</div>
+<h3>THE GRAPH — the index anyone can query</h3>
+<p>Onchain data is true but hard to read. The Graph turns the club's events — gifts, memberships, light-choices, revocations — into a subgraph: one open, indexed, queryable view of the whole circle. The fan wall, the circularity ledger (gifts received → gifts given onward), the "149 doors kept open" counter — all of it renders from the subgraph, with no central API to rate-limit or shut down.</p>
+<p>Because the index is open, anyone can build a better front-end for the club than ours — and the data layer remains honest, because it is the chain's own record, reorganized, not our version of it.</p>
+</div>
+
+<div class="ingredient" style="border-color:rgba(126,226,160,.4)">
+<div class="tag" style="color:#7ee2a0;border-color:rgba(126,226,160,.4)">THE SETTLEMENT LAYER · ROOT OF TRUST</div>
+<h3>ETHEREUM L1 — where the promises live</h3>
+<p>The final home of every promise in this paper is the Ethereum layer 1: the membership registry contract, the gift ledger, the ENS names, the EAS consent attestations, the ZK verifiers. The pattern is proven at the highest stakes: the Kingdom of Bhutan anchored its national digital identity on Ethereum mainnet — <em>anchoring, not storage; verification at the edges; covenant before code</em>. What a kingdom does for citizens, a village can do for fans.</p>
+<p>L1 is slow and expensive on purpose — it is the vault, not the dance floor. Day-to-day traffic (micro-tides, badges, wall updates) can ride an L2, but <em>anchored to L1</em>: the L2 is a convenience, the L1 is the truth. If every tool we built disappeared, an artist with a laptop and the contract address could reconstruct the entire club from L1 state alone. That is the standard.</p>
+</div>
+
+<p style="margin-top:26px;font-size:14px;color:#9d97c9">🕳️ <b>This paper stands on family research:</b> <a href="https://publicinform.com/research/">PIT Research Paper №1 — "The Consensual Pit"</a> (publicinform.com/research) — four open tracks, every claim sourced, every doubt flagged: the Bhutan precedent · ranked ZK architectures · consent consensus protocols · the honest economics. The fan club inherits all of it.</p>
+
+<h2 id="architecture">4 · THE ARCHITECTURE — the stack, layer by layer</h2>
+<div class="layers">
+<div class="layer"><b>⑤ EXPERIENCE — any frontend, forkable</b><span>shakafans.com today; anyone's site tomorrow. the wall, the club rooms, the video shares — all just views over open layers below</span></div>
+<div class="layer"><b>④ DISCOVERY — The Graph</b><span>the club subgraph: gifts · members · lights · revocations — indexed, open, queryable by anyone</span></div>
+<div class="layer"><b>③ PRIVACY — ZK circuits (Semaphore)</b><span>membership proofs · nullifier self-revocation · consent attestations — verification without exposure</span></div>
+<div class="layer"><b>② IDENTITY — ENS + EAS + World ID</b><span>who you choose to be (ENS) · what you consent to (EAS attestations) · that you are one human (World ID nullifier)</span></div>
+<div class="layer"><b>① SETTLEMENT — Ethereum L1</b><span>the fan-club contract: gifts in · membership state · consent flags · circularity out</span></div>
+</div>
+<p>Read it bottom-up like a song: L1 keeps the beat, identity gives each voice a name (or a mask), ZK lets the masked voices prove they belong, The Graph makes the whole performance audible, and the experience layer is just… the dancing. Every layer is open source; every layer is replaceable; no layer asks you to trust a company.</p>
+
+<h2 id="path">5 · THE PATH — from today's warm rails to full onchain consensus</h2>
+<p>We refuse the false choice between "custodial but working" and "pure but imaginary." The club is alive <em>today</em> on warm rails, and each phase moves one more promise from our servers to the chain. Honesty about where we stand is part of the design:</p>
+
+<div class="phase now">
+<div class="pn">PHASE 0 · NOW — THE WARM RAILS (live since Aug 2026)</div>
+<p>Gifts by card through Stripe's hosted checkout (we never touch card data), the usher bot on Telegram verifies each drop against the pool, the consent-sealed registry holds the lights, and the fan wall publishes public names by the usher's hand. It works, it is warm, and it is honestly custodial: Stripe holds the money rail, Telegram holds the messaging rail, and we hold the registry. Every one of those is a promise Phase 1+ moves onchain.</p>
+</div>
+<div class="phase">
+<div class="pn">PHASE 1 · THE ONCHAIN GIFT — the money rail opens</div>
+<p>Crypto gifts to shakalei.eth become first-class members: the fan-club contract on L1 records gift → membership, and The Graph indexes it. The wall starts reading from chain + ENS records instead of our files. Stripe remains as an on-ramp for card-givers, but membership itself is born onchain either way.</p>
+</div>
+<div class="phase">
+<div class="pn">PHASE 2 · SOVEREIGN IDENTITY — ENS names &amp; self-serve light</div>
+<p>Fans claim their place with their own ENS name; the light-choice becomes their own attestation, revocable by their own hand. Founding-member subnames for the early circle. The registry contract, not our database, is the source of truth for who is in.</p>
+</div>
+<div class="phase">
+<div class="pn">PHASE 3 · PROVABLE HUMANS, PRIVATE FANS — World ID + ZK</div>
+<p>World ID gating joins the circle: one human, one membership, sybil-resistant. ZK membership proofs give 🔒 PRIVATE fans full access with zero exposure — the usher never needs their email again. Consent states become ZK attestations; revocation is a proof, not a request.</p>
+</div>
+<div class="phase">
+<div class="pn">PHASE 4 · FULL ONCHAIN CONSENSUS — the club that can't be switched off</div>
+<p>Telegram and Stripe become optional mirrors, not pillars. Messaging moves to open, wallet-native rails; the money is pure L1/L2; the club's entire state reconstructs from L1. The artist and the fans hold the circle directly — consensus does the trusting, so nobody has to.</p>
+</div>
+
+<h2 id="unique">6 · WHAT MAKES THIS ONE DIFFERENT</h2>
+<table>
+<tr><th>most fan platforms</th><th>the shaka fans club</th></tr>
+<tr><td>the platform owns the fan list</td><td>the fan list is L1 state — the fans hold it</td></tr>
+<tr><td>privacy = a policy PDF</td><td>privacy = zero-knowledge proofs</td></tr>
+<tr><td>identity = your account, their database</td><td>identity = your ENS name, your keys</td></tr>
+<tr><td>"verified" badges, buyable &amp; fakeable</td><td>proof-of-personhood + proof-of-gift, unforgeable</td></tr>
+<tr><td>leaving means losing your history</td><td>your membership &amp; name travel with you</td></tr>
+<tr><td>one artist, one company, closed</td><td>a protocol any artist can fork — CC0</td></tr>
+<tr><td>consent = a checkbox buried in terms</td><td>consent = the protocol's first law, fail-closed</td></tr>
+</table>
+
+<h2 id="open">7 · OPEN QUESTIONS &amp; A CALL TO BUILDERS</h2>
+<p>This is v0.1 — a living paper. The open questions we are chewing:</p>
+<p>· <b>Which L2</b> carries the day-to-day traffic while staying honestly anchored to L1?<br>
+· <b>Tiered tides:</b> should ZK proofs gate tiers of closeness (monthly tide vs one-time drop) — or is the circle one tier, with generosity its own reward?<br>
+· <b>The direct line, decentralized:</b> which wallet-native messaging rail is warm enough for fans and strong enough for canon?<br>
+· <b>Anti-scalp:</b> should founding subnames be non-transferable (soulbound) so the circle can't be flipped?<br>
+· <b>Forkability:</b> what is the smallest "fan club in a box" — one contract, one subgraph, one page — that lets any artist on Earth start their own?</p>
+<p>If any of these sing to you: everything is open, everything is a harmony of 3, and the pit provides. <a href="https://github.com/shakaleikaumaka">github.com/shakaleikaumaka</a> · fork it like crazy 🍴</p>
+
+<div class="stamp">THE SHAKA FANS CLUB · whitepaper v0.1 · gifted August 5, 2026 · the August Rush 🌺<br>
+<a href="https://shakafans.com">shakafans.com</a> · <a href="https://blessingpool.com">the blessing pool</a> · <a href="https://publicinform.com">the protocol</a> · <a href="https://privateinform.com">the consent laws</a><br>
+CC0 · no rights reserved · heart first, always ♾</div>
+</div></body></html>
