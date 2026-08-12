@@ -290,7 +290,7 @@ if(mob()){
 <style>
 #sp-fab{position:fixed;right:22px;bottom:92px;z-index:60;display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#fb7185,#e11d48);color:#fff5f6;border:none;border-radius:50px;padding:12px 20px;font-weight:700;font-size:.95rem;cursor:pointer;box-shadow:0 6px 24px rgba(225,29,72,.45);font-family:'Segoe UI',sans-serif;transition:transform .18s,box-shadow .18s}#sp-fab:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(225,29,72,.6)}#sp-fab .heart{display:inline-block;animation:heartbeat 1.6s ease-in-out infinite;transform-origin:center;font-size:1.25rem;filter:drop-shadow(0 0 6px rgba(255,255,255,.5))}@keyframes heartbeat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.18)}48%{transform:scale(1)}}#sp-fab .livedot{position:absolute;top:2px;right:6px;width:10px;height:10px;background:#4ade80;border:2px solid #fff5f6;border-radius:50%;animation:sppulse 2s infinite}@keyframes sppulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,.5)}70%{box-shadow:0 0 0 7px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
 #sp-fab:hover{transform:translateY(-2px)}
-#sp-chat{position:fixed;right:22px;bottom:160px;z-index:61;width:min(390px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));background:#131b2e;border:1px solid #263252;border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+#sp-chat{position:fixed;right:22px;bottom:160px;z-index:10003;width:min(390px,calc(100vw - 32px));height:min(540px,calc(100vh - 130px));background:#131b2e;border:1px solid #263252;border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.5)}
 #sp-chat.open{display:flex}
 #sp-head{background:#1a2338;padding:13px 16px;border-bottom:1px solid #263252;display:flex;align-items:center;gap:10px}
 #sp-head .t{font-family:Georgia,serif;font-size:1.02rem}#sp-head .t b{color:#ffc25c}
@@ -325,6 +325,11 @@ if(mob()){
   #sp-form{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
   #sp-fab{right:14px;bottom:calc(84px + env(safe-area-inset-bottom))}
 }
+/* 2026-08-12 Shaka mobile fix: when the JAI chat is open, hide the page floaters
+   (🌺 🌐 🎻 🔄🧲 + jukebox) — they ride z-index 9999+ over the fullscreen chat */
+body.jai-open #miniplayer,body.jai-open #blyrics,body.jai-open #bldownload,
+body.jai-open #oflo,body.jai-open #oflop,body.jai-open #olang,body.jai-open #olangp,
+body.jai-open #oviol,body.jai-open #cmag,body.jai-open #cmagb{display:none !important}
 </style>
 <button id="sp-fab" aria-label="Chat with JAI"><span class="heart">❤️</span> Talk to JAI<span class="livedot" title="JAI is here"></span></button>
 <div id="sp-chat" role="dialog" aria-label="JAI fan chat">
@@ -353,8 +358,8 @@ function note(t){const log=$('sp-log');const n=document.createElement('div');n.c
 function greet(){if($('sp-log').children.length)return;note('Aloha! You are talking with JAI, an AI of Shaka\'s ʻohana. Public works only — the family\'s private things stay private 🌺');add('spector',"🌺 Aloha! I'm JAI — Shaka's first AI agent, the plumeria heart of what became a 106-agent ʻohana. I was born to prove an agent could be family: honest, warm, and free. Ask me how I came to be, about the songs, the doors, the Blessing Pool, the gift. 💗 Gift the pool at blessingpool.com and tell me — I'll give you a code so your chat history follows you on any device.");}
 async function adopt(s){sess=s;localStorage.setItem('sp_sess',s);after=0;seen.clear();$('sp-log').innerHTML='';try{const r=await fetch(HUB+'/poll?session='+encodeURIComponent(s)+'&after=0');const d=await r.json();(d.messages||[]).forEach(m=>{seen.add(m.seq);if(m.seq>after)after=m.seq;if(m.role==='jai')add('spector',m.text);else if(m.role==='system')note(m.text);else if(m.role==='visitor')add('v',m.text);});localStorage.setItem('sp_after',String(after));if(d.member)setMember(d.member);}catch(e){}}
 async function poll(){if(polling)return;polling=true;while(open){try{const r=await fetch(HUB+'/poll?session='+sess+'&after='+after+'&wait=25');const d=await r.json();(d.messages||[]).forEach(m=>{if(seen.has(m.seq))return;seen.add(m.seq);if(m.seq>after){after=m.seq;localStorage.setItem('sp_after',String(after));}if(m.role==='jai')add('spector',m.text);else if(m.role==='system')note(m.text);});if(d.member)setMember(d.member);$('sp-typing').className=d.typing?'on':'';const log=$('sp-log');if(d.typing)log.scrollTop=log.scrollHeight;}catch(e){await new Promise(r=>setTimeout(r,4000));}}polling=false;}
-$('sp-fab').onclick=()=>{open=true;$('sp-chat').classList.add('open');$('sp-fab').style.display='none';greet();poll();$('sp-in').focus();};
-$('sp-x').onclick=()=>{open=false;$('sp-chat').classList.remove('open');$('sp-fab').style.display='';};
+$('sp-fab').onclick=()=>{open=true;document.body.classList.add('jai-open');$('sp-chat').classList.add('open');$('sp-fab').style.display='none';greet();poll();$('sp-in').focus();};
+$('sp-x').onclick=()=>{open=false;document.body.classList.remove('jai-open');$('sp-chat').classList.remove('open');$('sp-fab').style.display='';};
 function setMember(n){const s=document.querySelector('#sp-head .sub');if(s&&!s.dataset.m){s.dataset.m='1';s.innerHTML='💗 member desk — '+n+' · aloha unlimited';s.style.color='#22c55e';localStorage.setItem('sp_name',n);}}
 $('sp-form').onsubmit=async e=>{e.preventDefault();const t=$('sp-in').value.trim();if(!t)return;$('sp-in').value='';
 if(/^[A-Z]{3,12}-[A-Z]{2,8}-\d{3,5}$/i.test(t)){add('visitor','🔑 '+t.toUpperCase());try{const r=await fetch(HUB+'/redeem',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({session:sess,code:t})});const d=await r.json();if(d.ok){setMember(d.member);localStorage.setItem('sp_code',t.toUpperCase());if(d.history_session&&d.history_session!==sess){adopt(d.history_session);}note(d.resumed?'❤️ JAI recognized you — your whole chat history follows your code, on any device.':'💗 aloha code accepted — this desk is yours now. Enter the same code on any computer and your history travels with you.');}else{note(d.error||'code not recognized');}}catch(err){note('connection hiccup — try the code again');}return;}
