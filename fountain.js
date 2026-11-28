@@ -27,7 +27,9 @@
   var PAYTO = '0x25965899f4600b3AA5362ee4f34be95E5E62c934';                 // osoartist.eth — the ONE address (Shaka's law 23 Nov 2026)
   var ENS = 'osoartist.eth';
   var BASE_ID = 8453;
-  var FACILITATOR = 'https://facilitator.payai.network';
+  // PayAI's facilitator cannot be called from a browser (OPTIONS /verify → 404, no CORS: Safari said "Load failed", 28 Nov 2026) —
+  // this is the gift-rail Worker's Base lane: same x402 request/reply shapes, CORS on, payee/asset/amount pinned (oso-gift-rail v1.1).
+  var FACILITATOR = 'https://gift-rail.opensourceorchestra.org/base';
   var RESOURCE = 'https://shakaleikaumaka.com/x402-bless.json';
   var HEDERA = '0.0.11347291';                                              // HBAR, by hand (already on the gift rail)
   var LINKS = {
@@ -538,15 +540,21 @@
       if (ok === false) throw new Error('the transaction failed on-chain (' + short(hash) + ') — nothing was transferred');
       return { tx: hash, chain: c, usd: S.usd, confirmed: ok === true };
     }
+    async function rail(path, body) {                                         // the gift-rail Worker's Base lane; every failure here is ofn='facilitator' → the card offers the plain transfer
+      var r; try { r = await W.fetch(FACILITATOR + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); }
+      catch (e) { var n = new Error(T('e.net', 'couldn’t reach the gift rail — nothing left your wallet')); n.ofn = 'facilitator'; throw n; }
+      try { return await r.json(); } catch (e) { var m = new Error(T('e.net2', 'the gift rail sent a reply we could not read — nothing left your wallet')); m.ofn = 'facilitator'; throw m; }
+    }
     async function giftGasless(OWH, p, info, c, st) {                        // Base · EIP-3009 · PayAI facilitator (the proven x402 path)
       var A = await OWH.authorize(p, { usd: S.usd, payTo: PAYTO, usdc: c.usdc.address, chain: BASE_ID, step: function (w) { say(st, w === 'connect' ? T('s.connect', '🔌 connecting your wallet…') : w === 'switch' ? T('s.switch', '🌉 switching to Base…') : T('s.sign', '✍️ sign the aloha (gas-free for you)…')); } });
       var payload = { x402Version: 1, scheme: 'exact', network: 'base', payload: { signature: A.signature, authorization: A.authorization } };
       var req = { scheme: 'exact', network: 'base', maxAmountRequired: A.authorization.value, resource: RESOURCE, description: 'pennies of aloha 🤙 — every drop keeps a door open', mimeType: 'application/json', payTo: PAYTO, maxTimeoutSeconds: 300, asset: c.usdc.address, extra: { name: 'USD Coin', version: '2' } };
       say(st, T('s.verify', '🌊 verifying…'));
-      var vj = await (await W.fetch(FACILITATOR + '/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ x402Version: 1, paymentPayload: payload, paymentRequirements: req }) })).json();
+      var vj = await rail('/verify', { x402Version: 1, paymentPayload: payload, paymentRequirements: req });
       if (!vj.isValid) { var e1 = new Error(T('e.verify', 'the facilitator did not bless it (') + esc(vj.invalidReason || 'unknown') + T('e.verify2', ') — nothing left your wallet')); e1.ofn = 'facilitator'; throw e1; }
       say(st, T('s.settle', '🌊 settling on Base… (seconds)'));
-      var sj = await (await W.fetch(FACILITATOR + '/settle', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ x402Version: 1, paymentPayload: payload, paymentRequirements: req }) })).json();
+      var sj = await rail('/settle', { x402Version: 1, paymentPayload: payload, paymentRequirements: req });
+      if (!sj.success && /settlement_pending/.test(String(sj.errorReason || ''))) return { tx: null, chain: c, usd: S.usd, confirmed: false };   // PayAI: unresolved, may still land — thank, don't fail
       if (!sj.success) { var e2 = new Error(T('e.settle', 'settlement hiccup (') + esc(sj.error || sj.errorReason || 'unknown') + T('e.verify2', ') — nothing left your wallet')); e2.ofn = 'facilitator'; throw e2; }
       var tx = /^0x[0-9a-fA-F]{64}$/.test(sj.transaction || '') ? sj.transaction : null;
       return { tx: tx, chain: c, usd: S.usd, confirmed: true };
