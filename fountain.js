@@ -545,17 +545,27 @@
       catch (e) { var n = new Error(T('e.net', 'couldn’t reach the gift rail — nothing left your wallet')); n.ofn = 'facilitator'; throw n; }
       try { return await r.json(); } catch (e) { var m = new Error(T('e.net2', 'the gift rail sent a reply we could not read — nothing left your wallet')); m.ofn = 'facilitator'; throw m; }
     }
+    var NOUSDC = /insufficient_balance/;                                      // a wallet with no USDC on Base: a plain transfer needs USDC too → say so, offer no retry button
+    function words(OWH, code) {                                               // plain words for the facilitator's reason codes (OWH.why is the one place that knows them); the raw code only as the last resort
+      code = String(code || '');
+      try { if (OWH && typeof OWH.why === 'function') return String(OWH.why(code)); } catch (e) {}
+      return NOUSDC.test(code) ? 'not enough USDC on Base in this wallet' : 'the gift rail did not accept it' + (code ? ' (' + code + ')' : '');
+    }
     async function giftGasless(OWH, p, info, c, st) {                        // Base · EIP-3009 · PayAI facilitator (the proven x402 path)
       var A = await OWH.authorize(p, { usd: S.usd, payTo: PAYTO, usdc: c.usdc.address, chain: BASE_ID, step: function (w) { say(st, w === 'connect' ? T('s.connect', '🔌 connecting your wallet…') : w === 'switch' ? T('s.switch', '🌉 switching to Base…') : T('s.sign', '✍️ sign the aloha (gas-free for you)…')); } });
       var payload = { x402Version: 1, scheme: 'exact', network: 'base', payload: { signature: A.signature, authorization: A.authorization } };
       var req = { scheme: 'exact', network: 'base', maxAmountRequired: A.authorization.value, resource: RESOURCE, description: 'pennies of aloha 🤙 — every drop keeps a door open', mimeType: 'application/json', payTo: PAYTO, maxTimeoutSeconds: 300, asset: c.usdc.address, extra: { name: 'USD Coin', version: '2' } };
       say(st, T('s.verify', '🌊 verifying…'));
       var vj = await rail('/verify', { x402Version: 1, paymentPayload: payload, paymentRequirements: req });
-      if (!vj.isValid) { var e1 = new Error(T('e.verify', 'the facilitator did not bless it (') + esc(vj.invalidReason || 'unknown') + T('e.verify2', ') — nothing left your wallet')); e1.ofn = 'facilitator'; throw e1; }
+      if (!vj.isValid) {
+        var rc = String(vj.invalidReason || 'unknown'), broke = NOUSDC.test(rc);
+        var e1 = new Error(esc(words(OWH, rc)) + T('e.verify2', ' — nothing left your wallet') + (broke ? T('e.verify3', '. Pick a smaller gift, or give by card or PayPal instead.') : ''));
+        e1.ofn = broke ? 'balance' : 'facilitator'; throw e1;
+      }
       say(st, T('s.settle', '🌊 settling on Base… (seconds)'));
       var sj = await rail('/settle', { x402Version: 1, paymentPayload: payload, paymentRequirements: req });
       if (!sj.success && /settlement_pending/.test(String(sj.errorReason || ''))) return { tx: null, chain: c, usd: S.usd, confirmed: false };   // PayAI: unresolved, may still land — thank, don't fail
-      if (!sj.success) { var e2 = new Error(T('e.settle', 'settlement hiccup (') + esc(sj.error || sj.errorReason || 'unknown') + T('e.verify2', ') — nothing left your wallet')); e2.ofn = 'facilitator'; throw e2; }
+      if (!sj.success) { var e2 = new Error(esc(words(OWH, sj.error || sj.errorReason || 'unknown')) + T('e.verify2', ' — nothing left your wallet')); e2.ofn = 'facilitator'; throw e2; }
       var tx = /^0x[0-9a-fA-F]{64}$/.test(sj.transaction || '') ? sj.transaction : null;
       return { tx: tx, chain: c, usd: S.usd, confirmed: true };
     }
